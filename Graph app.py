@@ -298,7 +298,7 @@ def to_remove_node(delete_u):
         Set[i][1] = b
         line[(a, b)] = line[(u, v)]
         if (a, b) != (u, v):
-            line[(u, v)] = None
+            to_remove_edge(u - 1, v - 1)
     update_numbers_nodes()
     count_edges_nodes_components()
     peresroyka()
