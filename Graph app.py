@@ -25,7 +25,7 @@ def is_two_integers(input_str):
         return True
     except ValueError:
         return False
-    
+
 def is_number(input_str):
     if input_str[0]==" " or input_str[-1]==" " or input_str=="":
         return False
@@ -72,7 +72,7 @@ def update_numbers_nodes():
         x = nodes[i][0]; y = nodes[i][1]
         X1, Y1, X2, Y2 = get_kord_to_draw(x, y)
         num_node[i] = canvas.create_text((X1 + X2)//2, (Y1 + Y2)//2, text=str(i + 1), font=('Courier', l//2), fill="red")
-    
+
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------#
 
 def count_components(graph):
@@ -122,18 +122,18 @@ def tsp(G):
             w = P[1]
             a[u + 1][v + 1] = w
             a[v + 1][u + 1] = w
-            
+
     for i in range(1, n):
         a[i][0] = 0
         a[0][i] = 0
-            
+
     N = 1 << n
     dp = [[float('inf')] * n for _ in range(N)]
     pr = [[0] * n for _ in range(N)]
-    
+
     dp[1][0] = 0
     pr[1][0] = -1
-    
+
     for i in range(2, N):
         for j in range(n):
             for k in range(n):
@@ -142,15 +142,15 @@ def tsp(G):
                         if dp[i][k] > dp[i ^ (1 << k)][j] + a[j][k]:
                             dp[i][k] = min(dp[i][k], dp[i ^ (1 << k)][j] + a[j][k])
                             pr[i][k] = j
-    
+
     fg = 0
     for i in range(n):
         if dp[(1 << n) - 1][i] <= n * 100:
             fg = 1
-    
+
     if fg == 0:
         return -1
-    
+
     ans = []
     A = float('inf')
     ms = (1 << n) - 1
@@ -158,12 +158,12 @@ def tsp(G):
     for i in range(n):
         if dp[ms][i] < dp[ms][go]:
             go = i
-    
+
     A = dp[ms][go]
     return A
-            
+
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------#
-    
+
 def add_node():
     S = str(text_entry_2.get())
     if is_two_integers(S) == False:
@@ -172,7 +172,7 @@ def add_node():
     if [x, y] in nodes:
         return;
     to_add_node(x, y)
-    
+
 def add_edge():
     global N
     S = str(text_entry_4.get())
@@ -186,7 +186,7 @@ def add_edge():
     x2 = nodes[v - 1][0]
     y2 = nodes[v - 1][1]
     to_add_edge(u, x1, y1, v, x2, y2)
-    
+
 def remove_node():
     global N
     global Graph
@@ -201,7 +201,7 @@ def remove_node():
         erase_reference(u, v)
         to_remove_edge(u, v)
     to_remove_node(u)
-    
+
 def remove_edge():
     global N
     S = str(text_entry_3.get())
@@ -212,14 +212,14 @@ def remove_edge():
         return;     
     erase_reference(u, v)
     to_remove_edge(u, v)
-    
+
 def find_dist_u_v():
     S = str(text_entry_5.get())
     if is_two_integers(S) == False:
         return;    
     u, v = int(str(text_entry_5.get()).split(" ")[0]), int(str(text_entry_5.get()).split(" ")[1])     
     getans_u_v(u, v) 
-    
+
 def find_shortest_u_v():
     global N, Gl, Gs
     global Graph
@@ -238,7 +238,7 @@ def find_shortest_u_v():
         canvas.create_text(size + 10*l, size//2 + 6.5*l, text=str(answer_dist), font=('Courier', l//2), fill="black") 
 
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------#
-            
+
 def to_add_node(x, y):
     global Gl, Gs, N
     global Graph, nodes
@@ -255,15 +255,23 @@ def to_add_node(x, y):
     num_node[N] = canvas.create_text((X1 + X2)//2, (Y1 + Y2)//2, text=str(N + 1), font=('Courier', l//2), fill="red") 
     N += 1
     count_edges_nodes_components()
-            
+
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------#
-            
+
 def to_remove_node(delete_u):
     global N
     global Graph, nodes
     global Set
     if delete_u > N or len(Graph[delete_u - 1]) > 0:
         return;
+    Det = []
+    for i in range(len(Set)):
+        u = Set[i][0]
+        v = Set[i][1]
+        Det += [[u, v]]
+        Det += [[v, u]]
+    while Set:
+        to_remove_edge(Set[-1][0], Set[-1][1])    
     canvas.delete(dot[delete_u - 1])
     for i in range(delete_u - 1, N - 1):
         dot[i]=dot[i+1]
@@ -285,20 +293,24 @@ def to_remove_node(delete_u):
             if Graph[i][j][0]>delete_u:
                 Graph[i][j][0] -= 1
     delete_u += 1
-    for i in range(len(Set)):
-        u = Set[i][0]
-        v = Set[i][1]
+    for i in range(len(Det)):
+        u = Det[i][0]
+        v = Det[i][1]
         a = u
         b = v
         if a >= delete_u:
             a -= 1
         if b >= delete_u:
             b -= 1
-        Set[i][0] = a
-        Set[i][1] = b
-        line[(a, b)] = line[(u, v)]
-        if (a, b) != (u, v):
-            to_remove_edge(u - 1, v - 1)
+        Det[i][0] = a
+        Det[i][1] = b
+        u = a
+        v = b
+        x1 = nodes[u - 1][0]
+        y1 = nodes[u - 1][1]
+        x2 = nodes[v - 1][0]
+        y2 = nodes[v - 1][1]
+        to_add_edge(u, x1, y1, v, x2, y2)
     update_numbers_nodes()
     count_edges_nodes_components()
     peresroyka()
@@ -454,16 +466,16 @@ def switch_canvas_instruction():
 
 def close_window():
     tk.destroy()
-    
+
 def get_button_width(button):
     return button.winfo_reqwidth()
 
 def Make_1():
     tk.attributes('-fullscreen', False)
-    
+
 def Make_2():
     tk.attributes('-fullscreen', True)
-    
+
 def Make_clear():
     global N
     global Graph
@@ -473,7 +485,7 @@ def Make_clear():
             erase_reference(u, v)
             to_remove_edge(u, v)
         to_remove_node(u)
-    
+
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------#
 
 tk = Tk()
@@ -587,19 +599,19 @@ def on_right_button_up(event):
     global start_x
     global start_y    
     canvas.delete("temp_line")
-    
+
     u1 = -1
     u2 = -1
     sx1 = -1
     sy1 = -1
     sx2 = -1
     sy2 = -1
-    
+
     X1 = start_x
     Y1 = start_y
     X2 = event.x
     Y2 = event.y
-    
+
     for x in range(-10, 11):
         for y in range(-10, 11):
             p1 = x + 10 + 1
@@ -617,7 +629,7 @@ def on_right_button_up(event):
                     for i in range(N):
                         if nodes[i][0] == x and nodes[i][1] == y:
                             u1 = i + 1    
-                            
+
     for x in range(-10, 11):
         for y in range(-10, 11):
             p1 = x + 10 + 1
@@ -635,7 +647,7 @@ def on_right_button_up(event):
                     for i in range(N):
                         if nodes[i][0] == x and nodes[i][1] == y:
                             u2 = i + 1 
-                            
+
     if u1 != -1 and u2 != -1:
         global Set
         if [u1, u2] in Set or [u2, u1] in Set:
@@ -645,7 +657,7 @@ def on_right_button_up(event):
 
     start_x = None
     start_y = None
-    
+
 canvas.bind("<Button-3>", on_right_button_down)
 canvas.bind("<B3-Motion>", on_right_button_drag)
 canvas.bind("<ButtonRelease-3>", on_right_button_up)
@@ -666,7 +678,7 @@ for i in range(1, 22):
         else:
             canvas.create_text(Gs//2+l, i*l, text=str(pp), font=('Courier', l//2, 'bold'), fill="black") 
     pp-=1
-    
+
 nodesCopy = nodes.copy()
 nodes=[]
 for i in range(len(nodesCopy)):
@@ -680,9 +692,9 @@ for i in range(n):
             x2 = nodes[j][0]
             y2 = nodes[j][1]
             to_add_edge(i+1, x1, y1, j+1, x2, y2)
-            
+
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------#
-            
+
 reference_canvas = Canvas(tk, width=screen_width, height=screen_height, highlightthickness=0, background='old lace')
 reference_canvas.pack()
 
@@ -724,7 +736,7 @@ for i in range(0, size + 1, size // 20):
 for i in range(1, 21):
     reference_canvas.create_text(1.5*l + i*l, 1.5*l, text=str(i), font=('Courier', l//2), fill="black") 
     reference_canvas.create_text(1.5*l, 1.5*l + i*l, text=str(i), font=('Courier', l//2), fill="black") 
-    
+
 def peresroyka():
     global Graph
     for u in range(1, 20):
@@ -735,7 +747,7 @@ def peresroyka():
         for j in range(len(Graph[i])):
             v = Graph[i][j][0] + 1
             draw_reference(u, v)
-          
+
 def draw_reference(u, v):
     global Graph
     lenth_u_v = 0
@@ -751,17 +763,17 @@ def draw_reference(u, v):
 def erase_reference(u, v):
     reference_canvas.create_rectangle((u-1)*l + l*2, (v-1)*l + l*2, (u-1)*l + l*3, (v-1)*l + l*3, fill="old lace", outline="red")
     reference_canvas.create_rectangle((v-1)*l + l*2, (u-1)*l + l*2, (v-1)*l + l*3, (u-1)*l + l*3, fill="old lace", outline="red")   
-    
+
 def count_edges_nodes_components():
     count_edges_reference()
     count_nodes_reference()
     count_components_reference()
-    
+
 def count_nodes_reference():
     global N, Gs, Gl
     reference_canvas.create_rectangle(Gs+Gl*9, Gs//2-Gl*3.5, Gs+Gl*12, Gs//2-Gl*1.5, fill="old lace", outline="old lace")
     reference_canvas.create_text(((Gs+Gl*9)+(Gs+Gl*12))//2, ((Gs//2-Gl*3.5)+(Gs//2-Gl*1.5))//2, text=str(N), font=('Courier', l//2), fill="black")     
-    
+
 reference_canvas.create_text(((Gs+Gl*6)+(Gs+Gl*9))//2-2.5*Gl, ((Gs//2-Gl*3.5)+(Gs//2-Gl*1.5))//2, text="Count nodes:", font=('Courier', l//2, 'bold'), fill="black") 
 
 def count_edges_reference():
@@ -773,7 +785,7 @@ def count_edges_reference():
     k_edges = k_edges//2
     reference_canvas.create_rectangle(Gs+Gl*9, Gs//2-Gl*3.5+3*Gl, Gs+Gl*12, Gs//2-Gl*1.5+3*Gl, fill="old lace", outline="old lace")
     reference_canvas.create_text(((Gs+Gl*9)+(Gs+Gl*12))//2, ((Gs//2-Gl*3.5+3*Gl)+(Gs//2-Gl*1.5+3*Gl))//2, text=str(k_edges), font=('Courier', l//2), fill="black")
-    
+
 reference_canvas.create_text(((Gs+Gl*6)+(Gs+Gl*9))//2-2.5*Gl, ((Gs//2-Gl*3.5+3*Gl)+(Gs//2-Gl*1.5+3*Gl))//2, text="Count edges:", font=('Courier', l//2, 'bold'), fill="black")
 
 def count_components_reference():
@@ -782,7 +794,7 @@ def count_components_reference():
     k_components = count_components(Graph)
     reference_canvas.create_rectangle(Gs+Gl*9, Gs//2-Gl*3.5+6*Gl, Gs+Gl*12, Gs//2-Gl*1.5+6*Gl, fill="old lace", outline="old lace")
     reference_canvas.create_text(((Gs+Gl*9)+(Gs+Gl*12))//2, ((Gs//2-Gl*3.5+6*Gl)+(Gs//2-Gl*1.5+6*Gl))//2, text=str(k_components), font=('Courier', l//2), fill="black")
-    
+
 reference_canvas.create_text(((Gs+Gl*6)+(Gs+Gl*9))//2-2.5*Gl, ((Gs//2-Gl*3.5+6*Gl)+(Gs//2-Gl*1.5+6*Gl))//2, text="Components:", font=('Courier', l//2, 'bold'), fill="black")
 
 count_edges_nodes_components()
@@ -808,7 +820,7 @@ def type_text(text, text_id, char_index=0):
         Instruction.itemconfigure(text_id, text=text[:char_index+1])
         Instruction.update()
         Instruction.after(5, type_text, text, text_id, char_index+1)
-        
+
 S = "Инструкция по применению\n\nСписок доступных операций:\nAdd edge (u, v) - добавить ребро, соединяющие две вершины с номерами u и v\nRemove edge (u, v) - удалить ребро, соединяющие две вершины с номерами u и v\nAdd node (x, y) - добавить вершину с целочисленными координатами x, y (|x|<=10; |y|<=10)\nRemove node (u) - удалить вершину с номером u\nDist between (u, v) - найти кратчайший путь в графе между вершинами u и v\nShortest path - найти кратчайший гамильтонов путь в графе\nClear - очистить граф\nInfo - содержит дополнительную информацию о графе\n\nПримечание:\nПри добавлении и удалении ребра между вершинами u и v, должны существовать вершины с такими номерами\nПри удалении вершины из графа с номером u, должна существовать вершина с таким номером\nПри добавлении вершины u, число текущих вершин в графе должно быть строго меньше 20\nПри поиске кратчайшего пути между вершинами u и v, должны существовать вершины с такими номерами\nЕсли добавить уже существующее ребро или существующую вершину, то ничего не произойдет\nЕсли удалить несуществующую вершину или несуществующее ребро, то ничего не произойдет\nВводить все числа нужно через пробел без лишних символов\n\nДобавление и удаление вершин так же можно сделать при помощи ЛКМ\nДобавление и удаление ребер можно сделать, зажав ПКМ"
 
 text_id = Instruction.create_text(l, 2*l, text="", font=("Lora", l//2), fill="black", anchor="nw")
