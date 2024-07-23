@@ -489,7 +489,7 @@ def Make_clear():
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------#
 
 tk = Tk()
-tk.title('Game')
+tk.title('App')
 tk.resizable(0, 0)
 tk.wm_attributes('-topmost', 1)
 tk.attributes('-fullscreen', True)
